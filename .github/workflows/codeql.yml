@@ -21,8 +21,6 @@ on:
       - "**/*.ts"
       - "**/*.tsx"
 
-  workflow_dispatch:
-
 permissions:
   contents: read
   packages: read
@@ -45,7 +43,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
