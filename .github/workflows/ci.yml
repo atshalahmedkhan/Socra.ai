@@ -68,7 +68,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: services/api/requirements-dev.txt
+          cache-dependency-path: |
+            services/api/requirements-dev.txt
+            services/api/requirements.txt
 
       - name: Install dependencies
         run: |
