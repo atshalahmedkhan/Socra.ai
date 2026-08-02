@@ -1,1 +1,1 @@
-"""Socra API application package."""
+"""Socra API."""

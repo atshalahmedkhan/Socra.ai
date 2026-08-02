@@ -13,6 +13,7 @@ def database_url() -> str:
     """Return the configured database URL (empty in a fresh dev env)."""
     return get_settings().DATABASE_URL
 
+
 # Example (enable when SQLAlchemy is added to requirements):
 #
 # from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine

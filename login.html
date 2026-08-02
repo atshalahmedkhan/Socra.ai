@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<!-- login.html — Client-side mock login (no Supabase scripts) -->
+<html lang="en">
+<head>
+<meta http-equiv="Content-Security-Policy"
+  content="default-src 'self' https://*.supabase.co wss://*.supabase.co;
+           script-src 'self' https://cdn.jsdelivr.net;
+           style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+           font-src https://fonts.gstatic.com;
+           img-src 'self' data:;
+           connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+           object-src 'none';
+           base-uri 'self';
+           form-action 'self';">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Referrer-Policy" content="no-referrer">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Project — Login</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--surface2); }
+.login-card { background: var(--surface); border: 0.5px solid var(--border-strong); border-radius: var(--radius-lg); padding: 2.5rem; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+.login-title { font-family: 'DM Serif Display', serif; font-size: 28px; margin-bottom: 0.5rem; }
+.login-sub { font-size: 14px; color: var(--text-2); margin-bottom: 2rem; line-height: 1.5; }
+.form-group { margin-bottom: 1.5rem; }
+.form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.form-input { width: 100%; padding: 12px 14px; border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm); font-size: 15px; font-family: 'Outfit', sans-serif; background: var(--surface); color: var(--text); }
+.form-input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
+.remember-row { display: flex; align-items: center; gap: 8px; margin-bottom: 2rem; font-size: 13px; color: var(--text-2); cursor: pointer; }
+.btn-block { width: 100%; justify-content: center; padding: 12px; font-size: 15px; }
+.error-msg { color: var(--red); font-size: 13px; margin-top: 1rem; text-align: center; display: none; }
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <div class="login-title">Sign in</div>
+  <div class="login-sub">Welcome back to the Research Project portal. Please enter your credentials to continue.</div>
+
+  <form id="login-form">
+    <div class="form-group">
+      <label class="form-label" for="userId">User ID</label>
+      <input type="text" id="userId" name="userId" class="form-input" autocomplete="username" placeholder="e.g. PD01" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="password">Password</label>
+      <input type="password" id="password" name="password" class="form-input" autocomplete="current-password" placeholder="••••" required>
+    </div>
+    <label class="remember-row">
+      <input type="checkbox" id="rememberMe" name="rememberMe" checked>
+      Remember me
+    </label>
+    <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+    <div class="error-msg" id="error-msg"></div>
+  </form>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/login.js"></script>
+
+</body>
+</html>

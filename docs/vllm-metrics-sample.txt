@@ -1,0 +1,1 @@
+# Not captured: vLLM was not installed and no server was running on 2026-07-19.
