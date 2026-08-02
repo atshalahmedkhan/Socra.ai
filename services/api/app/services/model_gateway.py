@@ -67,7 +67,7 @@ class ModelGateway:
                 return result
             except ModelError as exc:
                 last_error = exc
-                if kind == "primary" and exc.retryable:
+                if kind == "primary":
                     await self.breaker.failure()
                 continue
         raise last_error or ModelError(ModelErrorCode.UNAVAILABLE, "No model path is configured")
