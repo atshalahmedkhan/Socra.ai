@@ -45,7 +45,7 @@ stamp = datetime.datetime.now(datetime.UTC).strftime("%Y%m%dT%H%M%SZ")
 columns = ("concurrency", "requests", "successes", "failures", "error_rate",
            "p50_ms", "p95_ms", "p99_ms", "requests_per_second", "tokens_per_second")
 lines = ["| " + " | ".join(columns) + " |", "|" + "|".join(["---"] * len(columns)) + "|"]
-for result in results:
-    lines.append("| " + " | ".join(str(result.get(column, "")) for column in columns) + " |")
+for row in results:
+    lines.append("| " + " | ".join(str(row.get(column, "")) for column in columns) + " |")
 (out / f"summary-{stamp}.md").write_text("\n".join(lines))
-raise SystemExit(max(result["exit_code"] for result in results))
+raise SystemExit(max(r["exit_code"] for r in results))
