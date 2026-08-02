@@ -20,14 +20,14 @@ Examples: `feat/phase1-live-model-integration`, `fix/message-idempotency`,
 Do not document or branch from `development` unless that integration branch is
 created intentionally and protected.
 
-## Pull requests
+## Pull-request workflow
 
 1. Never push directly to `main`.
-2. Keep every branch and pull request focused.
+2. Keep every branch and pull request focused on one reviewable scope.
 3. Open a pull request and require at least one approval.
 4. Require CI to pass and resolve every review conversation.
 5. Do not approve or merge your own pull request.
-6. Squash merge unless another documented repository policy exists.
+6. Squash merge unless another documented repository policy applies.
 7. Delete merged feature branches.
 
 Never commit secrets, local environment files, access tokens, database URLs,

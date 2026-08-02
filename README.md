@@ -1,208 +1,118 @@
-<div align="center">
+# Research Project Website
 
-<br />
+> Socra Phase 1 model infrastructure is isolated under `services/`. See
+> `docs/model-infrastructure.md`, `docs/model-server-security.md`, and `.env.example`.
+> The existing static project site has no tutoring session/message domain yet.
 
-<h1>Socra</h1>
+The FastAPI backend now exposes a versioned `/api/v1` architecture with Supabase JWT verification, internal-user synchronization, classroom-scoped permissions, stable error envelopes, request IDs, and redacted structured logs. See `docs/backend-architecture.md`, `docs/authentication-flow.md`, and `docs/api-routes.md`. Domain routes without backing tables return an authenticated `NOT_IMPLEMENTED` response.
 
-<p><em>Socratic AI — Learn by Thinking</em></p>
+A static multi-page research project site with calendar, Gantt timeline, team chat, and date-pinned comments. Data is stored in Supabase with realtime updates — no build step required.
 
-<br />
+## Setup
 
-![Status](https://img.shields.io/badge/status-prototype-orange?style=flat-square)
-![Funded](https://img.shields.io/badge/ELN_Funded-University_at_Buffalo-005bbb?style=flat-square)
-![Stack](https://img.shields.io/badge/stack-Python_%7C_React_%7C_Gemma-111111?style=flat-square)
+1. Copy `.env.example` to the ignored `.env` file and set values from
+   **Supabase Dashboard → Settings → API**:
+   - `SUPABASE_URL`
+   - `SUPABASE_PUBLISHABLE_KEY` (browser-safe when RLS is correctly configured)
+   - `SUPABASE_SECRET_KEY` (backend only; never expose it to frontend code)
+   - `DATABASE_URL` from **Connect → Connection string**
 
-<br />
+   Legacy `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` names remain
+   temporarily supported. If a modern and legacy alias are both present, their
+   values must match; the modern name takes precedence.
+2. In Supabase **SQL Editor**, run the **entire** `supabase_schema.sql` first (creates tables + grants). Do **not** run `supabase_fix_grants.sql` on a new empty project.
+   - `supabase_fix_grants.sql` is only if tables already exist and you still get **permission denied**.
+3. Open `login.html` in a browser (or serve the folder with any static host).
 
-</div>
+## Login (mock credentials)
 
----
+| User ID | Password | Role   |
+|---------|----------|--------|
+| PD01    | 0202     | owner  |
+| TG05    | 1515     | tejas  |
+| AK03    | 0909     | atshal |
 
-ChatGPT gives students the answer. Socra asks them a question.
+## Pages
 
-That difference is the whole product.
+| File | Description |
+|------|-------------|
+| `login.html` | Sign in (client-side credentials) |
+| `index.html` | Overview, phase status, team |
+| `calendar.html` | Calendar with phases, advising sessions, day comments |
+| `gantt.html` | Gantt timeline and progress |
+| `chat.html` | Team chat (3 channels), date pins, posting permissions |
 
----
+## File structure
 
-## The Problem
-
-Modern AI tools make it trivially easy to get answers without understanding. Students paste in homework, hit enter, and move on. Nothing sticks.
-
-The result:
-
-- Shallow, surface-level learning
-- Collapsed critical thinking
-- AI dependency where there should be skill
-- Academic integrity quietly eroding
-
----
-
-## The Solution
-
-Socra enforces a **guided reasoning approach** rooted in the Socratic method — the same technique that's been the gold standard for teaching for 2,500 years.
-
-Instead of:
-> *"Here's the answer to your recursion problem."*
-
-Socra says:
-> *"What's your base case, and why does it matter?"*
-
-No direct answers. Ever.
-
----
-
-## How It Works
-
-### 🧑‍🏫 Faculty Configuration
-- Upload course materials and problem sets
-- Socra builds a reasoning map using RAG (Retrieval-Augmented Generation)
-- Each topic gets a structured hint ladder — broad nudges down to targeted clues
-
-### 🧑‍🎓 Student Environment
-- Students work inside a sandboxed interface (no copy-paste, no tab switching)
-- The AI asks guiding questions — it never gives the solution
-- Students must articulate their reasoning before unlocking the next step
-
-### 📊 Instructor Analytics
-- Tracks where students consistently get stuck
-- Surfaces conceptual gaps across the class
-- Helps instructors improve content and teaching focus
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | React / Next.js |
-| Backend | Python (FastAPI) |
-| Database & Vector Store | Supabase PostgreSQL + `pgvector` |
-| AI / LLM | self-hosted Gemma 4 (via vLLM) |
-| Sandboxing | Browser-level constraints |
-
----
-
-## Privacy First
-
-- No raw student answers stored
-- Only aggregated learning patterns tracked
-- No individual surveillance — the goal is understanding, not catching cheaters
-- Data scoped per course, per instructor
-
----
-
-## Current Status
-
-| Milestone | Status |
-|---|---|
-| Core concept validated | ✅ Done |
-| ELN funding secured (University at Buffalo) | ✅ Done |
-| Faculty feedback sessions | 🔄 In progress |
-| Prototype (MVP) | 🔄 In development |
-| Pilot deployment | 🎯 Planned |
-
----
-
-## Roadmap
-
-- [ ] MVP with single-course pilot
-- [ ] Adaptive hint generation based on student response quality
-- [ ] LMS integration (Canvas, Blackboard)
-- [ ] Multi-course faculty dashboard
-- [ ] Published research findings from pilot data
-
----
-
-## Development Setup
-
-> This section covers the Phase 1 development scaffold. Full technical details
-> live in [`docs/`](docs/).
-
-### Prerequisites
-
-- Git
-- Node.js **22** (see `apps/web/.nvmrc`) + npm
-- Python **3.12** (3.11+ supported; see `services/api/.python-version`)
-- Docker Desktop
-- A Supabase project
-- Access to the Gemma model weights (Hugging Face) and a GPU for training/inference
-
-### Repository layout
-
-```text
-apps/web/              Next.js + TypeScript frontend
-services/api/          FastAPI backend
-services/model-training/  Gemma QLoRA fine-tuning
-services/model-server/    vLLM inference service
-packages/shared-types/    shared TS contract types
-database/              migrations, policies, seed
-docs/                  architecture, workflow, secrets, deployment
+```
+├── login.html
+├── index.html
+├── calendar.html
+├── gantt.html
+├── chat.html
+├── css/
+│   └── style.css
+├── js/
+│   └── data.js
+├── config.js
+└── README.md
 ```
 
-### Environment files
+## Script load order (every app page)
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="js/data.js"></script>
+```
+
+## Features
+
+- **Chat**: Messages saved to `chat_messages`; realtime INSERT updates the UI per channel.
+- **Calendar**: Day comments in `day_comments` with realtime on the selected day.
+- **Phases**: Status in `phase_statuses` with realtime on overview and Gantt.
+- **Permissions**: Owner can toggle posting for collaborators via `chat_perms`.
+- **Security**: Content-Security-Policy on all pages; user text via `textContent` only; rate limits on sends/comments.
+
+## Deploying on Vercel
+
+### Option A — GitHub (recommended)
+
+1. Push your branch to GitHub (`TejasGov/tasks-Socra`).
+2. Go to [vercel.com](https://vercel.com) → **Add New Project** → import the repo.
+3. **Production branch:** `Reconfuring_Session_Chat` (or `main` after merge).
+4. **Framework Preset:** Other
+   **Build Command:** `npm run build`
+   **Output Directory:** `.` (project root)
+5. **Environment Variables** (Settings → Environment Variables):
+
+   | Name | Value |
+   |------|--------|
+   | `NEXT_PUBLIC_SUPABASE_URL` | `https://your-project-ref.supabase.co` |
+   | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Your browser-safe publishable key |
+
+6. **Deploy**. The build runs `scripts/generate-config.js` and creates `config.js` on the server (not committed to git).
+
+### Option B — Vercel CLI
 
 ```bash
-cp .env.example .env                       # root (Docker Compose)
-cp .env.example apps/web/.env.local        # frontend-safe vars only
-cp .env.example services/api/.env          # backend-only secrets
+npm i -g vercel
+cd tasks-Socra
+vercel
+# follow prompts; add env vars in the dashboard or:
+vercel env add NEXT_PUBLIC_SUPABASE_URL
+vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+vercel --prod
 ```
 
-Never copy backend-only secrets into `apps/web/.env.local`. See
-[docs/secrets-and-environments.md](docs/secrets-and-environments.md).
+### After deploy
 
-### Frontend
+- Site URL will look like `https://tasks-socra.vercel.app`
+- Open `/login.html` to sign in
+- Ensure Supabase **SQL schema** (`supabase_schema.sql`) was run on the same project as your env vars
 
-```bash
-cd apps/web
-npm install
-npm run dev        # http://localhost:3000
-```
+## Customization
 
-### Backend
-
-```bash
-cd services/api
-python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\Activate.ps1
-pip install -r requirements-dev.txt
-uvicorn app.main:app --reload --port 8000   # http://localhost:8000 (docs at /docs)
-```
-
-### Docker (all services)
-
-```bash
-docker compose up --build
-```
-
-### Tests
-
-```bash
-# Frontend
-cd apps/web && npm run lint && npm run typecheck && npm run test
-
-# Backend
-cd services/api && ruff check . && pytest
-```
-
-See [docs/development-workflow.md](docs/development-workflow.md) for branching
-and PR conventions.
-
----
-
-## Contributing
-
-Early-stage project. If you're interested in AI, education technology, or systems design — open an issue or reach out directly.
-
----
-
-## Contact
-
-**Atshal Ahmed Khan**  
-B.S. Computer Science (Mathematics minor) — University at Buffalo  
-📧 atshalah@buffalo.edu & tejasgov@buffalo.edu
-
----
-
-<div align="center">
-<sub><i>Socra isn't trying to replace learning. It's trying to bring it back.</i></sub>
-</div>
+- Phases, meetings, users: edit `js/data.js`
+- Styles: `css/style.css`
+- Copy: edit HTML pages directly

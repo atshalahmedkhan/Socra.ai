@@ -8,7 +8,7 @@ body:
       value: Never include credentials, real student records, or private research data.
   - type: textarea
     id: problem
-    attributes: {label: Problem}
+    attributes: {label: Problem, description: Describe the user or research problem, not only a proposed solution.}
     validations: {required: true}
   - type: dropdown
     id: user

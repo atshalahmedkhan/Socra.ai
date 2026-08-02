@@ -1,26 +1,36 @@
-"""Auth dependencies.
+from uuid import UUID
 
-Placeholder for Supabase access-token verification. Real implementation will
-validate the bearer token (JWT) against Supabase and load the current user.
-Never log raw access tokens.
-"""
+from fastapi import Depends, Request
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from __future__ import annotations
+from app.auth.jwt import verify_access_token
+from app.core.errors import APIError
+from app.schemas.auth import AuthenticatedUser
 
-from fastapi import Header, HTTPException, status
+bearer = HTTPBearer(auto_error=False)
 
 
-async def require_bearer_token(
-    authorization: str | None = Header(default=None),
-) -> str:
-    """Extract a bearer token from the Authorization header.
+async def get_optional_user(request: Request, credentials: HTTPAuthorizationCredentials | None = Depends(bearer)):
+    if not credentials:
+        return None
+    if credentials.scheme.lower() != "bearer":
+        raise APIError(401, "INVALID_TOKEN", "The authorization header is invalid.")
+    claims = verify_access_token(credentials.credentials, request.app.state.settings)
+    try:
+        auth_id = UUID(claims["sub"])
+    except (KeyError, ValueError):
+        raise APIError(401, "INVALID_TOKEN", "The access token is invalid.") from None
+    record = await request.app.state.users.get_or_create(auth_id, claims.get("email"))
+    return AuthenticatedUser(
+        auth_user_id=record["auth_user_id"],
+        internal_user_id=record["id"],
+        email=record["email"],
+        is_admin=record["is_admin"],
+        is_researcher=record["is_researcher"],
+    )
 
-    Verification against Supabase is added with the auth feature; for now this
-    only enforces the header shape.
-    """
-    if not authorization or not authorization.lower().startswith("bearer "):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing or malformed Authorization header",
-        )
-    return authorization.split(" ", 1)[1]
+
+async def get_current_user(user=Depends(get_optional_user)):
+    if not user:
+        raise APIError(401, "AUTH_REQUIRED", "Authentication is required.")
+    return user

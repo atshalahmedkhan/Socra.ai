@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-07-19T23:39:59.024426+00:00",
+  "checks": [
+    {
+      "name": "HF_TOKEN",
+      "passed": false,
+      "detail": "MISSING_TOKEN"
+    },
+    {
+      "name": "model_endpoints",
+      "passed": false,
+      "detail": "ConnectError"
+    },
+    {
+      "name": "api_endpoints",
+      "passed": false,
+      "detail": "ConnectError"
+    }
+  ],
+  "passed": false
+}

@@ -59,7 +59,7 @@ body:
     attributes: {label: Sanitized screenshots or evidence}
   - type: textarea
     id: network
-    attributes: {label: Network conditions, description: Include only when relevant and do not expose private endpoints.}
+    attributes: {label: Network conditions, description: Include only when relevant; never include private endpoints or credentials.}
   - type: checkboxes
     id: safety
     attributes:

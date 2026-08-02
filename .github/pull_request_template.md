@@ -1,5 +1,7 @@
 ## Summary
 
+Describe what changed and why.
+
 ## Linked issue
 
 Closes #
@@ -31,11 +33,15 @@ Closes #
 - [ ] RLS or policy changes
 - [ ] Data migration required
 
+Explain any migration ordering, rollback, or compatibility considerations:
+
 ## Environment-variable impact
 
 List variable names only. Never include values, tokens, keys, or connection strings.
 
 ## Security and privacy impact
+
+Describe authentication, authorization, RLS, secrets, student-data, and research-data considerations.
 
 ## Testing performed
 
@@ -56,10 +62,12 @@ Live verification result:
 
 ## Screenshots or evidence
 
-Screenshots must not contain secrets, access tokens, database URLs, student
-data, or research-participant data.
+Screenshots and evidence must not contain secrets, access tokens, database URLs,
+student data, or research-participant data.
 
 ## Rollback plan
+
+Describe the safe rollback or forward-fix procedure.
 
 ## Reviewer checklist
 
