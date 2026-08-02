@@ -46,7 +46,7 @@ function renderPhases() {
   PHASES.forEach((p, i) => {
     const status = window.serverData.phaseStatuses[i] || 'pending';
     let statusText;
-    let statusBg = 'var(--surface2)';
+    let statusBg;
     let statusTx;
 
     const el = document.createElement('div');
