@@ -1,0 +1,69 @@
+name: Bug report
+description: Report a reproducible Socra defect using sanitized evidence.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not submit passwords, tokens, API keys, database URLs, real student
+        records, or private research data. Sanitize logs and screenshots.
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected component
+      options: [Frontend, Backend, Database, Supabase, Model infrastructure, CI/CD, Documentation]
+    validations: {required: true}
+  - type: input
+    id: environment
+    attributes: {label: Environment, placeholder: "Local, development, staging, or production"}
+    validations: {required: true}
+  - type: dropdown
+    id: role
+    attributes:
+      label: User role
+      options: [Student, Instructor, Researcher, Administrator, Anonymous, Internal service, Not applicable]
+    validations: {required: true}
+  - type: textarea
+    id: reproduction
+    attributes: {label: Reproduction steps, placeholder: "1. …\n2. …\n3. …"}
+    validations: {required: true}
+  - type: textarea
+    id: expected
+    attributes: {label: Expected behavior}
+    validations: {required: true}
+  - type: textarea
+    id: actual
+    attributes: {label: Actual behavior}
+    validations: {required: true}
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options: [Critical, High, Medium, Low]
+    validations: {required: true}
+  - type: dropdown
+    id: regression
+    attributes:
+      label: Regression status
+      options: [Known regression, Possibly a regression, Not a regression, Unknown]
+    validations: {required: true}
+  - type: input
+    id: related
+    attributes: {label: Related commit or PR}
+  - type: textarea
+    id: logs
+    attributes: {label: Sanitized logs, render: shell}
+  - type: textarea
+    id: screenshots
+    attributes: {label: Sanitized screenshots or evidence}
+  - type: textarea
+    id: network
+    attributes: {label: Network conditions, description: Include only when relevant; never include private endpoints or credentials.}
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety confirmation
+      options:
+        - label: I removed credentials, student records, and private research data.
+          required: true

@@ -1,25 +1,16 @@
-"""Aggregate router for API v1."""
-
-from __future__ import annotations
-
 from fastapi import APIRouter
 
-from app.core.config import get_settings
+from app.api.v1.auth import router as auth_router
+from app.api.v1.contracts import router as contract_router
 
-api_router = APIRouter()
+router = APIRouter()
+router.include_router(auth_router)
+router.include_router(contract_router)
 
 
-@api_router.get("/status", tags=["meta"])
-def status() -> dict[str, str]:
-    """Report non-sensitive service configuration."""
+@router.get("/status")
+async def status():
+    from app.core.config import get_settings
+
     settings = get_settings()
-    return {
-        "env": settings.APP_ENV,
-        "model_name": settings.MODEL_NAME,
-        "model_version": settings.MODEL_VERSION,
-    }
-
-
-# Feature routers are added here as they are implemented, e.g.:
-#   from app.api.v1 import tutor
-#   api_router.include_router(tutor.router, prefix="/tutor", tags=["tutor"])
+    return {"model_version": settings.model_version, "env": settings.environment}

@@ -1,0 +1,12 @@
+config.js
+node_modules/
+.DS_Store
+.env
+.cache/
+benchmark-results/
+*.safetensors
+*.gguf
+models/
+adapters/
+__pycache__/
+.pytest_cache/

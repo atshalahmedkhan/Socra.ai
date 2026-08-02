@@ -1,6 +1,7 @@
 """Tests for environment validation."""
 
 import pytest
+from pydantic import ValidationError
 
 from app.core.config import Settings
 
@@ -13,9 +14,8 @@ def test_missing_required_detected():
 
 
 def test_production_missing_required_raises():
-    settings = Settings(APP_ENV="production")
-    with pytest.raises(RuntimeError):
-        settings.validate_required()
+    with pytest.raises(ValidationError):
+        Settings(APP_ENV="production")
 
 
 def test_development_missing_required_allows_boot():
