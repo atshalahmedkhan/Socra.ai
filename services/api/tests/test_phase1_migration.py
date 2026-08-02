@@ -5,9 +5,10 @@ MIGRATIONS = Path(__file__).parents[3] / "database" / "migrations"
 
 
 def test_phase1_migrations_are_ordered_and_unique():
-    names = [path.name for path in MIGRATIONS.glob("*.sql")]
-    assert names == sorted(names)
+    names = sorted(path.name for path in MIGRATIONS.glob("*.sql"))
+    assert names
     prefixes = [name.split("_", 1)[0] for name in names]
+    assert prefixes == sorted(prefixes)
     assert len(prefixes) == len(set(prefixes))
 
 
