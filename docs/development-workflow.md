@@ -1,73 +1,57 @@
-# Development Workflow
+# Development workflow
 
-## Branches
+## Branch names
 
-Long-lived branches:
-
-```text
-main          # production / pilot-ready, protected
-development   # integration branch, protected
-```
-
-Work happens on short-lived branches cut from `development`.
-
-### Feature branch naming
+The repository currently has one long-lived branch: protected `main`. Create
+short-lived branches from the latest `main` using these patterns:
 
 ```text
-feat/<ticket>-<description>     # new feature
-fix/<ticket>-<description>      # bug fix
-chore/<description>             # tooling, deps, config
-docs/<description>              # documentation only
-research/<description>          # model training / data / experiments
+feat/<ticket-or-scope>-<description>
+fix/<ticket-or-scope>-<description>
+chore/<description>
+docs/<description>
+research/<description>
 ```
 
-Examples:
+Examples: `feat/phase1-live-model-integration`, `fix/message-idempotency`,
+`chore/phase1-github-workflow`, `docs/model-deployment-guide`, and
+`research/gemma-latency-benchmark`.
 
-```text
-feat/SOC-12-socratic-prompt-builder
-fix/SOC-31-token-refresh
-chore/ci-gitleaks
-docs/architecture-diagram
-research/qlora-eval-v2
-```
+Do not document or branch from `development` unless that integration branch is
+created intentionally and protected.
 
 ## Pull requests
 
-1. Branch from `development`.
-2. Keep PRs focused and small.
-3. Fill in `.github/pull_request_template.md`, including the security checklist.
-4. Ensure CI is green: lint, typecheck, tests, and secret scan.
-5. Request review; squash-merge into `development`.
-6. `development` → `main` promotions happen via reviewed PRs only.
+1. Never push directly to `main`.
+2. Keep every branch and pull request focused.
+3. Open a pull request and require at least one approval.
+4. Require CI to pass and resolve every review conversation.
+5. Do not approve or merge your own pull request.
+6. Squash merge unless another documented repository policy exists.
+7. Delete merged feature branches.
 
-### Required checks (recommended branch protection)
+Never commit secrets, local environment files, access tokens, database URLs,
+model weights, student data, or private research data.
 
-Both `main` and `development` should require:
+## Issues and evidence
 
-- Pull request before merging (no direct pushes).
-- Passing status checks: `CI / frontend`, `CI / backend`, `Secret Scan / gitleaks`.
-- At least one approving review.
-- Up-to-date branches before merge.
+Use the structured bug or feature form and link implementation PRs to issues
+where practical. Sanitize logs and screenshots. Pull requests must list exact
+commands, exit codes, and passed/failed/skipped counts. Mock-based tests must be
+identified as mocks; live model claims require real observed evidence.
 
-> Branch protection is configured in **GitHub → Settings → Branches**. It cannot
-> live in the repo; apply it in the GitHub UI (or via `gh api`).
-
-## Local checks before pushing
+## Local checks
 
 ```bash
-# Frontend
 cd apps/web
+npm ci
 npm run lint
 npm run typecheck
 npm run test
+npm run build
 
-# Backend
-cd services/api
+cd ../../services/api
+python -m pip install -r requirements-dev.txt
 ruff check .
 pytest
 ```
-
-## Commits
-
-- Use clear, imperative commit messages ("Add Socratic prompt builder").
-- Never commit `.env` files, secrets, model weights, or real student data.
