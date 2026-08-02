@@ -20,14 +20,17 @@ class ModelRequestRepository:
         model_name: str,
         model_version: str,
         prompt_version: str,
+        provider_route: str = "primary",
+        student_message_id: str | None = None,
+        assistant_message_id: str | None = None,
     ) -> None:
         if not self.pool:
             return
         await self.pool.execute(
             """insert into public.model_requests
                (request_id, session_id, provider_endpoint, model_name, model_version,
-                prompt_version, status)
-               values ($1, $2::uuid, $3, $4, $5, $6, 'pending')
+                prompt_version, status, provider_route, student_message_id, assistant_message_id)
+               values ($1, $2::uuid, $3, $4, $5, $6, 'pending', $7, $8::uuid, $9::uuid)
                on conflict (request_id) do nothing""",
             request_id,
             session_id,
@@ -35,6 +38,9 @@ class ModelRequestRepository:
             model_name,
             model_version,
             prompt_version,
+            provider_route,
+            student_message_id,
+            assistant_message_id,
         )
 
     async def finish(
@@ -52,15 +58,18 @@ class ModelRequestRepository:
         fallback_reason: str | None = None,
         error_code: str | None = None,
         provider_endpoint: str | None = None,
+        provider_route: str | None = None,
     ) -> None:
         if not self.pool:
             return
         await self.pool.execute(
             """update public.model_requests set status=$2, model_name=$3,
                prompt_tokens=$4, completion_tokens=$5, total_tokens=$6,
-               total_latency_ms=$7, retry_count=$8, fallback_used=$9,
+               total_latency_ms=$7, latency_ms=$7, input_tokens=$4, output_tokens=$5,
+               retry_count=$8, fallback_used=$9,
                fallback_reason=$10, error_code=$11,
-               provider_endpoint=coalesce($12, provider_endpoint)
+               provider_endpoint=coalesce($12, provider_endpoint),
+               provider_route=coalesce($13, provider_route)
                where request_id=$1""",
             request_id,
             status,
@@ -74,4 +83,5 @@ class ModelRequestRepository:
             fallback_reason,
             error_code,
             provider_endpoint,
+            provider_route,
         )

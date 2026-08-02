@@ -144,6 +144,8 @@ class Settings(BaseSettings):
         return None if value == "" else value
 
     model_client_enabled: bool = True
+    model_provider: str = "vllm"
+    model_mock_scenario: str = "success"
     base_model_name: str = "google/gemma-3-4b-it"
     model_primary_name: str = "gemma-3-4b-base"
     model_stable_name: str = "socra-gemma-v0"
@@ -242,6 +244,8 @@ class Settings(BaseSettings):
         if len(set(project_refs.values())) > 1:
             raise ValueError("Supabase project reference mismatch between: " + ", ".join(sorted(project_refs)))
 
+        if self.app_env == AppEnvironment.PRODUCTION and self.model_provider == "mock":
+            raise ValueError("MODEL_PROVIDER=mock is not allowed in production")
         if self.app_env in {AppEnvironment.STAGING, AppEnvironment.PRODUCTION}:
             if self.debug or "*" in self.cors_allowed_origins or self.internal_routes_enabled:
                 raise ValueError("Unsafe application settings for staging/production")

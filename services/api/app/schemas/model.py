@@ -43,4 +43,5 @@ class ModelGenerationResult(BaseModel):
     fallback_reason: str | None = None
     retry_count: int = 0
     provider_endpoint: str
+    provider_route: str = "primary"
     finish_reason: str | None = None

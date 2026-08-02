@@ -1,11 +1,13 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from app.auth.authorization import require_classroom_permission
 from app.auth.dependencies import get_current_user
 from app.auth.permissions import Permission
-from app.core.errors import not_implemented
+from app.core.errors import APIError, not_implemented
+from app.schemas.tutoring import SendTutoringMessageRequest, SendTutoringMessageResponse
+from app.services.model_errors import ModelError
 
 router = APIRouter()
 
@@ -82,13 +84,36 @@ async def materials_create(classroom_id: UUID):
     return await unavailable()
 
 
+@router.post(
+    "/tutoring-sessions/{session_id}/messages",
+    response_model=SendTutoringMessageResponse,
+)
+async def send_tutoring_message(
+    session_id: UUID,
+    body: SendTutoringMessageRequest,
+    request: Request,
+    user=Depends(get_current_user),
+):
+    try:
+        return await request.app.state.tutoring_messages.send(
+            session_id=session_id,
+            student_id=user.internal_user_id,
+            content=body.content,
+            client_request_id=body.client_request_id,
+            request_id=request.state.request_id,
+        )
+    except ModelError as exc:
+        status = 504 if exc.code.value == "MODEL_TIMEOUT" else 503
+        raise APIError(status, exc.code.value, "The response could not be generated. Your message was saved.") from None
+
+
 for path, methods in (
     ("/materials/{material_id}", ["GET", "DELETE"]),
     ("/materials/{material_id}/status", ["GET"]),
     ("/tutoring-sessions", ["POST"]),
     ("/tutoring-sessions/{session_id}", ["GET"]),
     ("/tutoring-sessions/{session_id}/end", ["POST"]),
-    ("/tutoring-sessions/{session_id}/messages", ["GET", "POST"]),
+    ("/tutoring-sessions/{session_id}/messages", ["GET"]),
     ("/messages/{message_id}/feedback", ["POST"]),
     ("/tutoring-sessions/{session_id}/feedback", ["GET"]),
     ("/research/participant-status", ["GET"]),

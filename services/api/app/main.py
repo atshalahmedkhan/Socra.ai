@@ -15,14 +15,17 @@ from app.core.errors import APIError
 from app.core.exception_handlers import install_exception_handlers
 from app.core.logging import configure_logging
 from app.core.middleware import RequestContextMiddleware
+from app.repositories.message_repository import MessageRepository
 from app.repositories.model_request_repository import ModelRequestRepository
 from app.repositories.user_repository import UserRepository
 from app.schemas.model import ModelGenerationRequest
+from app.services.deterministic_mock_model import DeterministicMockModelAdapter
 from app.services.model_circuit_breaker import CircuitBreaker
 from app.services.model_client import ModelClient
 from app.services.model_errors import ModelError
 from app.services.model_gateway import ModelGateway
 from app.services.model_usage import safely_record
+from app.services.tutoring_message_service import TutoringMessageService
 
 CONTROLLED_ERROR = "Socra cannot generate the next question right now. Your message has been saved. Please try again."
 
@@ -41,7 +44,11 @@ async def lifespan(app: FastAPI):
             )
         except Exception:
             raise RuntimeError("Database connection failed; verify the redacted DATABASE_URL configuration.") from None
-    client = ModelClient(settings)
+    client = (
+        DeterministicMockModelAdapter(settings, settings.model_mock_scenario)
+        if settings.model_provider == "mock"
+        else ModelClient(settings)
+    )
     app.state.settings = settings
     app.state.db_pool = pool
     app.state.model_client = client
@@ -54,6 +61,10 @@ async def lifespan(app: FastAPI):
         ),
     )
     app.state.model_requests = ModelRequestRepository(pool)
+    app.state.messages = MessageRepository(pool)
+    app.state.tutoring_messages = TutoringMessageService(
+        app.state.messages, app.state.model_requests, app.state.gateway, settings
+    )
     app.state.users = UserRepository(pool)
     yield
     await client.close()
@@ -96,7 +107,7 @@ async def generate(body: ModelGenerationRequest, request: Request, user=Depends(
         await safely_record(
             repo.finish,
             request_id,
-            status="succeeded",
+            status="completed",
             model_name=result.model_name,
             prompt_tokens=result.prompt_tokens,
             completion_tokens=result.completion_tokens,
@@ -106,6 +117,7 @@ async def generate(body: ModelGenerationRequest, request: Request, user=Depends(
             fallback_used=result.fallback_used,
             fallback_reason=result.fallback_reason,
             provider_endpoint=result.provider_endpoint,
+            provider_route=result.provider_route,
         )
         return result
     except ModelError as exc:
