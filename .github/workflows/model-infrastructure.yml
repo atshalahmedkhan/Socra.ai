@@ -14,4 +14,4 @@ jobs:
       - run: SOC_ENDPOINT_ENV_FILE=.env.example docker compose -f docker-compose.yml config --quiet
       - run: SOC_ENDPOINT_ENV_FILE=.env.example docker compose -f docker-compose.yml -f docker-compose.gpu.yml config --quiet
       - run: python -c "from pathlib import Path; required={'APP_ENV','API_V1_PREFIX','SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','SUPABASE_SECRET_KEY','DATABASE_URL','SUPABASE_JWT_ISSUER','SUPABASE_JWKS_URL','MODEL_PRIMARY_URL','MODEL_PRIMARY_API_KEY'}; names={line.split('=',1)[0] for line in Path('.env.example').read_text().splitlines() if '=' in line}; assert not required-names, required-names"
-      - run: git grep -nE '(hf_[A-Za-z0-9]{20,}|MODEL_.*API_KEY=.+)' -- ':!*.example' && exit 1 || true
+      - run: git grep -nE '(hf_[A-Za-z0-9]{20,}|MODEL_.*API_KEY=.+)' -- ':!*.example' ':!.github/workflows/model-infrastructure.yml' && exit 1 || true
