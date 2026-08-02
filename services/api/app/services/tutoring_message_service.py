@@ -40,7 +40,10 @@ class TutoringMessageService:
             )
         provider_endpoint = "mock" if self.settings.model_provider == "mock" else self.settings.model_primary_url
         provider_route = "mock" if self.settings.model_provider == "mock" else "primary"
-        model_name = "deterministic-mock" if self.settings.model_provider == "mock" else self.settings.model_primary_name
+        model_name = (
+            "deterministic-mock" if self.settings.model_provider == "mock"
+            else self.settings.model_primary_name
+        )
         model_version = "mock-v1" if self.settings.model_provider == "mock" else self.settings.model_version
 
         await self.model_requests.create_pending(
@@ -54,7 +57,10 @@ class TutoringMessageService:
             student_message_id=str(pair.student_id),
             assistant_message_id=str(pair.assistant_id),
         )
-        request = ModelGenerationRequest(session_id=str(session_id), messages=[ChatMessage(role="user", content=content)])
+        request = ModelGenerationRequest(
+            session_id=str(session_id),
+            messages=[ChatMessage(role="user", content=content)],
+        )
         try:
             result = await self.gateway.generate(request, request_id)
         except ModelError as exc:

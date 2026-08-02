@@ -1,5 +1,6 @@
-import httpx
 from enum import StrEnum
+
+import httpx
 
 from app.core.config import Settings
 from app.schemas.model import ModelErrorCode, ModelGenerationResult
