@@ -23,7 +23,13 @@ class DeterministicMockModelAdapter:
         self.settings = settings
         self.scenario = MockScenario(scenario)
         self.calls: list[str] = []
-        self.http = httpx.AsyncClient()
+        timeout = httpx.Timeout(
+            connect=settings.model_connect_timeout_seconds,
+            read=settings.model_read_timeout_seconds,
+            write=settings.model_write_timeout_seconds,
+            pool=settings.model_pool_timeout_seconds,
+        )
+        self.http = httpx.AsyncClient(timeout=timeout)
 
     async def close(self) -> None:
         await self.http.aclose()

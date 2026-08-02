@@ -64,6 +64,7 @@ class ModelClient:
                             await asyncio.sleep(delay * random.uniform(0.8, 1.2))
         except TimeoutError as exc:
             raise ModelError(ModelErrorCode.TIMEOUT, "Model request timed out", retryable=True) from exc
+
     async def _attempt(self, request, *, base_url, api_key, model, request_id):
         headers = {"Content-Type": "application/json", "X-Request-ID": request_id}
         if api_key:

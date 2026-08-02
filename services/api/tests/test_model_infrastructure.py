@@ -1,3 +1,5 @@
+import asyncio
+
 import httpx
 import pytest
 
@@ -74,6 +76,21 @@ async def test_retry_once():
         request(), base_url="http://m", api_key=None, model="x", request_id="r"
     )
     assert calls == 2 and result.retry_count == 1
+    await http.aclose()
+
+
+@pytest.mark.asyncio
+async def test_total_deadline_timeout_is_normalized():
+    async def handler(req):
+        del req
+        await asyncio.sleep(0.05)
+        return httpx.Response(200, json={"choices": [{"message": {"content": "late"}}]})
+
+    http = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    client = ModelClient(Settings(model_total_deadline_seconds=0.01, model_max_retries=0), http)
+    with pytest.raises(ModelError) as caught:
+        await client.generate(request(), base_url="http://model", api_key=None, model="x", request_id="r")
+    assert caught.value.code == ModelErrorCode.TIMEOUT
     await http.aclose()
 
 

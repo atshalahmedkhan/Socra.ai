@@ -25,4 +25,3 @@ services:
     networks: [socra-private]
 networks:
   socra-private:
-    internal: true

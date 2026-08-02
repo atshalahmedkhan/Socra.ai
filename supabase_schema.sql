@@ -38,23 +38,23 @@ alter publication supabase_realtime add table public.phase_statuses;
 alter publication supabase_realtime add table public.chat_perms;
 
 -- 3. Set up Row Level Security (RLS)
--- Since auth is handled via mock client-side logic, we open RLS for anon read/write.
+-- Restrict access to authenticated clients only.
 alter table public.chat_messages enable row level security;
 alter table public.day_comments enable row level security;
 alter table public.phase_statuses enable row level security;
 alter table public.chat_perms enable row level security;
 
-create policy "Allow all access to chat_messages" on public.chat_messages for all using (true) with check (true);
-create policy "Allow all access to day_comments" on public.day_comments for all using (true) with check (true);
-create policy "Allow all access to phase_statuses" on public.phase_statuses for all using (true) with check (true);
-create policy "Allow all access to chat_perms" on public.chat_perms for all using (true) with check (true);
+create policy "Allow authenticated access to chat_messages" on public.chat_messages for all to authenticated using (true) with check (true);
+create policy "Allow authenticated access to day_comments" on public.day_comments for all to authenticated using (true) with check (true);
+create policy "Allow authenticated access to phase_statuses" on public.phase_statuses for all to authenticated using (true) with check (true);
+create policy "Allow authenticated access to chat_perms" on public.chat_perms for all to authenticated using (true) with check (true);
 
 -- 4. Table privileges (required — RLS alone is not enough)
-grant usage on schema public to anon, authenticated;
-grant select, insert, update, delete on public.chat_messages to anon, authenticated;
-grant select, insert, update, delete on public.day_comments to anon, authenticated;
-grant select, insert, update, delete on public.phase_statuses to anon, authenticated;
-grant select, insert, update, delete on public.chat_perms to anon, authenticated;
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on public.chat_messages to authenticated;
+grant select, insert, update, delete on public.day_comments to authenticated;
+grant select, insert, update, delete on public.phase_statuses to authenticated;
+grant select, insert, update, delete on public.chat_perms to authenticated;
 
 -- 5. Insert initial permissions
 insert into public.chat_perms (uid, can_post) values ('tejas', true), ('atshal', true)
