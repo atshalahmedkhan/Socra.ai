@@ -41,27 +41,29 @@ class ModelClient:
     ) -> ModelGenerationResult:
         started = time.perf_counter()
         retries = 0
-        async with asyncio.timeout(self.settings.model_total_deadline_seconds):
-            async with self.semaphore:
-                while True:
-                    try:
-                        result = await self._attempt(
-                            request,
-                            base_url=base_url,
-                            api_key=api_key,
-                            model=model,
-                            request_id=request_id,
-                        )
-                        result.retry_count = retries
-                        result.total_latency_ms = round((time.perf_counter() - started) * 1000)
-                        return result
-                    except ModelError as exc:
-                        if not exc.retryable or retries >= self.settings.model_max_retries:
-                            raise
-                        retries += 1
-                        delay = self.settings.model_retry_base_delay_ms / 1000 * (2 ** (retries - 1))
-                        await asyncio.sleep(delay * random.uniform(0.8, 1.2))
-
+        try:
+            async with asyncio.timeout(self.settings.model_total_deadline_seconds):
+                async with self.semaphore:
+                    while True:
+                        try:
+                            result = await self._attempt(
+                                request,
+                                base_url=base_url,
+                                api_key=api_key,
+                                model=model,
+                                request_id=request_id,
+                            )
+                            result.retry_count = retries
+                            result.total_latency_ms = round((time.perf_counter() - started) * 1000)
+                            return result
+                        except ModelError as exc:
+                            if not exc.retryable or retries >= self.settings.model_max_retries:
+                                raise
+                            retries += 1
+                            delay = self.settings.model_retry_base_delay_ms / 1000 * (2 ** (retries - 1))
+                            await asyncio.sleep(delay * random.uniform(0.8, 1.2))
+        except TimeoutError as exc:
+            raise ModelError(ModelErrorCode.TIMEOUT, "Model request timed out", retryable=True) from exc
     async def _attempt(self, request, *, base_url, api_key, model, request_id):
         headers = {"Content-Type": "application/json", "X-Request-ID": request_id}
         if api_key:
