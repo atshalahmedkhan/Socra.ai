@@ -38,31 +38,50 @@ class TutoringMessageService:
                 pair.student_id, pair.assistant_id, assistant["status"],
                 assistant["content"], True,
             )
+        provider_endpoint = "mock" if self.settings.model_provider == "mock" else self.settings.model_primary_url
+        provider_route = "mock" if self.settings.model_provider == "mock" else "primary"
+        model_name = "deterministic-mock" if self.settings.model_provider == "mock" else self.settings.model_primary_name
+        model_version = "mock-v1" if self.settings.model_provider == "mock" else self.settings.model_version
+
         await self.model_requests.create_pending(
-            request_id=request_id, session_id=str(session_id), provider_endpoint="mock",
-            provider_route="mock", model_name="deterministic-mock", model_version="mock-v1",
+            request_id=request_id,
+            session_id=str(session_id),
+            provider_endpoint=provider_endpoint,
+            provider_route=provider_route,
+            model_name=model_name,
+            model_version=model_version,
             prompt_version=self.settings.prompt_version,
-            student_message_id=str(pair.student_id), assistant_message_id=str(pair.assistant_id),
+            student_message_id=str(pair.student_id),
+            assistant_message_id=str(pair.assistant_id),
         )
-        request = ModelGenerationRequest(
-            session_id=str(session_id), messages=[ChatMessage(role="user", content=content)]
-        )
+        request = ModelGenerationRequest(session_id=str(session_id), messages=[ChatMessage(role="user", content=content)])
         try:
             result = await self.gateway.generate(request, request_id)
         except ModelError as exc:
             await self.messages.fail_assistant(pair.assistant_id)
             await self.model_requests.finish(
-                request_id, status="failed", model_name="deterministic-mock",
-                error_code=exc.code.value, provider_endpoint="mock",
+                request_id,
+                status="failed",
+                model_name=model_name,
+                error_code=exc.code.value,
+                provider_endpoint=provider_endpoint,
+                provider_route=provider_route,
             )
             raise
         await self.messages.complete_assistant(pair.assistant_id, result.content)
         await self.model_requests.finish(
-            request_id, status="completed", model_name=result.model_name,
-            prompt_tokens=result.prompt_tokens, completion_tokens=result.completion_tokens,
-            total_tokens=result.total_tokens, total_latency_ms=result.total_latency_ms,
-            retry_count=result.retry_count, fallback_used=result.fallback_used,
-            fallback_reason=result.fallback_reason, provider_endpoint="mock",
+            request_id,
+            status="completed",
+            model_name=result.model_name,
+            prompt_tokens=result.prompt_tokens,
+            completion_tokens=result.completion_tokens,
+            total_tokens=result.total_tokens,
+            total_latency_ms=result.total_latency_ms,
+            retry_count=result.retry_count,
+            fallback_used=result.fallback_used,
+            fallback_reason=result.fallback_reason,
+            provider_endpoint=result.provider_endpoint,
+            provider_route=result.provider_route,
         )
         return TutoringMessageResult(
             pair.student_id, pair.assistant_id, "completed", result.content, False
