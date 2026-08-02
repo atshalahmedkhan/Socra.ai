@@ -47,7 +47,7 @@ function renderPhases() {
     const status = window.serverData.phaseStatuses[i] || 'pending';
     let statusText;
     let statusBg;
-    let statusTx = 'var(--text-2)';
+    let statusTx;
 
     const el = document.createElement('div');
     el.className = 'phase-item';
