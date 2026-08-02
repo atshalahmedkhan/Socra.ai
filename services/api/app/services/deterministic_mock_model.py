@@ -1,3 +1,4 @@
+import httpx
 from enum import StrEnum
 
 from app.core.config import Settings
@@ -21,10 +22,10 @@ class DeterministicMockModelAdapter:
         self.settings = settings
         self.scenario = MockScenario(scenario)
         self.calls: list[str] = []
+        self.http = httpx.AsyncClient()
 
     async def close(self) -> None:
-        return None
-
+        await self.http.aclose()
     async def generate(self, request, *, base_url, api_key, model, request_id):
         del api_key, model, request_id
         route = "fallback" if base_url == self.settings.model_fallback_url else "primary"
