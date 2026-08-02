@@ -1,7 +1,10 @@
 ## Summary
 
+<<<<<<< HEAD
 Describe what changed and why.
 
+=======
+>>>>>>> origin/main
 ## Linked issue
 
 Closes #
@@ -33,16 +36,22 @@ Closes #
 - [ ] RLS or policy changes
 - [ ] Data migration required
 
+<<<<<<< HEAD
 Explain any migration ordering, rollback, or compatibility considerations:
 
+=======
+>>>>>>> origin/main
 ## Environment-variable impact
 
 List variable names only. Never include values, tokens, keys, or connection strings.
 
 ## Security and privacy impact
 
+<<<<<<< HEAD
 Describe authentication, authorization, RLS, secrets, student-data, and research-data considerations.
 
+=======
+>>>>>>> origin/main
 ## Testing performed
 
 | Command | Passed | Failed | Skipped | Exit code |
@@ -62,6 +71,7 @@ Live verification result:
 
 ## Screenshots or evidence
 
+<<<<<<< HEAD
 Screenshots and evidence must not contain secrets, access tokens, database URLs,
 student data, or research-participant data.
 
@@ -69,6 +79,13 @@ student data, or research-participant data.
 
 Describe the safe rollback or forward-fix procedure.
 
+=======
+Screenshots must not contain secrets, access tokens, database URLs, student
+data, or research-participant data.
+
+## Rollback plan
+
+>>>>>>> origin/main
 ## Reviewer checklist
 
 - [ ] No secrets were committed.
