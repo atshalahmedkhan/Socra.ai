@@ -43,14 +43,14 @@ identified as mocks; live model claims require real observed evidence.
 ## Local checks
 
 ```bash
-cd apps/web
+cd frontend
 npm ci
 npm run lint
 npm run typecheck
 npm run test
 npm run build
 
-cd ../../services/api
+cd ../backend
 python -m pip install -r requirements-dev.txt
 ruff check .
 pytest

@@ -2,7 +2,7 @@
   "name": "tasks-socra",
   "version": "1.0.0",
   "scripts": {
-    "build": "node scripts/generate-config.js",
+    "build": "node legacy/scripts/generate-config.js",
     "start": "serve ."
   },
   "devDependencies": {

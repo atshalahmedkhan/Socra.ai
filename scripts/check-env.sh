@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Verify that a .env file defines every key present in .env.example.
-# Usage: scripts/check-env.sh services/api/.env
+# Usage: scripts/check-env.sh backend/.env
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

@@ -1,6 +1,6 @@
 # Scripts
 
-Repo-wide helper scripts.
+Repository-level helper scripts.
 
 | Script | Purpose |
 | --- | --- |
@@ -8,5 +8,9 @@ Repo-wide helper scripts.
 
 ```bash
 chmod +x scripts/check-env.sh
-scripts/check-env.sh services/api/.env
+scripts/check-env.sh backend/.env
 ```
+
+Model-specific benchmark and verification scripts have moved to
+`model/benchmarks/scripts/`. The legacy static-site config generator has moved
+to `legacy/scripts/`.

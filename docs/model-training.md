@@ -12,7 +12,7 @@ parameter-efficient QLoRA to produce a Socratic tutoring model.
 | Quantization | bitsandbytes |
 | Environment | Google Colab Pro+ (GPU) |
 | Base model | `google/gemma-4-E4B-it` |
-| Inference | vLLM (`services/model-server`) |
+| Inference | vLLM (`model/server/`) |
 
 ## Prerequisites
 
@@ -28,12 +28,14 @@ parameter-efficient QLoRA to produce a Socratic tutoring model.
 ## Layout
 
 ```text
-services/model-training/
+model/training/
 ├── configs/        # training + LoRA/QLoRA hyperparameters
 ├── data/           # datasets (GIT-IGNORED — never commit real student data)
 ├── notebooks/      # Colab notebooks
 ├── scripts/        # train / merge / export scripts
 └── evaluations/    # eval harness + reports
+
+annotated-data/     # canonical dataset splits (raw, processed, train, validation, test)
 ```
 
 ## Model version naming
@@ -59,12 +61,13 @@ released version.
 
 ## Data rules
 
-- `services/model-training/data/` is git-ignored.
+- `model/training/data/` is git-ignored.
+- `annotated-data/` subdirectories are git-ignored (except `.gitkeep` placeholders).
 - Never commit real student data. Use synthetic or de-identified data for
   development.
 
 ## Evaluation
 
-- Run the eval harness in `evaluations/` before promoting a version.
+- Run the eval harness in `model/evaluation/` before promoting a version.
 - Compare against the previous version; record metrics in the research issue
   (see the "Research / data task" issue template).

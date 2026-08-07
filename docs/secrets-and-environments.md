@@ -17,10 +17,10 @@
 | --- | --- | --- |
 | `.env.example` | ✅ yes | Placeholders only, every required variable |
 | `.env` (root) | ❌ no | Local root values (Docker Compose) |
-| `apps/web/.env.local` | ❌ no | **Frontend-safe** vars only (`NEXT_PUBLIC_*`, anon key) |
-| `services/api/.env` | ❌ no | **Backend-only** secrets (service-role, model key, DB URL, HF token) |
+| `frontend/.env.local` | ❌ no | **Frontend-safe** vars only (`NEXT_PUBLIC_*`, anon key) |
+| `backend/.env` | ❌ no | **Backend-only** secrets (service-role, model key, DB URL, HF token) |
 
-Do **not** copy backend-only secrets into `apps/web/.env.local`.
+Do **not** copy backend-only secrets into `frontend/.env.local`.
 Any variable without the `NEXT_PUBLIC_` prefix is server-side only.
 
 ## Frontend-safe vs backend-only
@@ -61,7 +61,7 @@ Use fully separate resources per environment — **development**, **staging**,
 ## Startup validation
 
 The backend validates required environment variables at startup (see
-`services/api/app/core/config.py`) and fails fast with a clear message if any
+`backend/app/core/config.py`) and fails fast with a clear message if any
 required variable is missing. Verify the frontend bundle contains no backend
 secrets before shipping (`npm run build` then inspect output).
 

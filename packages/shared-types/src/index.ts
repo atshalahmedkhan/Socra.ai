@@ -1,5 +1,5 @@
-// Shared contract types between the Socra frontend (apps/web) and backend
-// (services/api). Keep these in sync with the backend Pydantic schemas.
+// Shared contract types between the Socra frontend (frontend/) and backend
+// (backend/). Keep these in sync with the backend Pydantic schemas.
 
 export type AppEnv = "development" | "staging" | "production";
 
