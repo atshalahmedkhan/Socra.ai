@@ -2,7 +2,7 @@
 
 Status: **blocked**
 
-`HF_TOKEN` and `HUGGING_FACE_TOKEN` are empty. Therefore Gemma metadata access, license acceptance, checkpoint download, vLLM startup, and live endpoint verification were not possible. `scripts/verify_model_runtime.py` recorded `MISSING_TOKEN` plus connection failures for model and API endpoints.
+`HF_TOKEN` and `HUGGING_FACE_TOKEN` are empty. Therefore Gemma metadata access, license acceptance, checkpoint download, vLLM startup, and live endpoint verification were not possible. `model/benchmarks/scripts/verify_model_runtime.py` recorded `MISSING_TOKEN` plus connection failures for model and API endpoints.
 
 The intended local command is:
 

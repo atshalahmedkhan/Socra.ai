@@ -1,118 +1,109 @@
-# Research Project Website
+# Socra
 
-> Socra Phase 1 model infrastructure is isolated under `services/`. See
-> `docs/model-infrastructure.md`, `docs/model-server-security.md`, and `.env.example`.
-> The existing static project site has no tutoring session/message domain yet.
+A Socratic tutoring platform. Socra guides students through progressive questions and hints instead of giving final answers, powered by a self-hosted, fine-tuned Gemma model.
 
-The FastAPI backend now exposes a versioned `/api/v1` architecture with Supabase JWT verification, internal-user synchronization, classroom-scoped permissions, stable error envelopes, request IDs, and redacted structured logs. See `docs/backend-architecture.md`, `docs/authentication-flow.md`, and `docs/api-routes.md`. Domain routes without backing tables return an authenticated `NOT_IMPLEMENTED` response.
+> **Phase 1 — infrastructure and backend scaffold.** The backend API, authentication, model gateway, and database schema are in place. A live model endpoint, frontend tutoring UI, and domain route implementations are not yet complete. See `docs/phase1-final-gap-audit.md` for the current gap list.
 
-A static multi-page research project site with calendar, Gantt timeline, team chat, and date-pinned comments. Data is stored in Supabase with realtime updates — no build step required.
-
-## Setup
-
-1. Copy `.env.example` to the ignored `.env` file and set values from
-   **Supabase Dashboard → Settings → API**:
-   - `SUPABASE_URL`
-   - `SUPABASE_PUBLISHABLE_KEY` (browser-safe when RLS is correctly configured)
-   - `SUPABASE_SECRET_KEY` (backend only; never expose it to frontend code)
-   - `DATABASE_URL` from **Connect → Connection string**
-
-   Legacy `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` names remain
-   temporarily supported. If a modern and legacy alias are both present, their
-   values must match; the modern name takes precedence.
-2. In Supabase **SQL Editor**, run the **entire** `supabase_schema.sql` first (creates tables + grants). Do **not** run `supabase_fix_grants.sql` on a new empty project.
-   - `supabase_fix_grants.sql` is only if tables already exist and you still get **permission denied**.
-3. Open `login.html` in a browser (or serve the folder with any static host).
-
-## Login (mock credentials)
-
-| User ID | Password | Role   |
-|---------|----------|--------|
-| PD01    | 0202     | owner  |
-| TG05    | 1515     | tejas  |
-| AK03    | 0909     | atshal |
-
-## Pages
-
-| File | Description |
-|------|-------------|
-| `login.html` | Sign in (client-side credentials) |
-| `index.html` | Overview, phase status, team |
-| `calendar.html` | Calendar with phases, advising sessions, day comments |
-| `gantt.html` | Gantt timeline and progress |
-| `chat.html` | Team chat (3 channels), date pins, posting permissions |
-
-## File structure
+## Architecture
 
 ```
-├── login.html
-├── index.html
-├── calendar.html
-├── gantt.html
-├── chat.html
-├── css/
-│   └── style.css
-├── js/
-│   └── data.js
-├── config.js
-└── README.md
+frontend/          (Next.js — student browser)
+        ↓  HTTPS + Supabase JWT
+backend/           (FastAPI — auth, orchestration, model calls)
+        ↓  Supabase service-role key
+Supabase / PostgreSQL  (Auth · pgvector · Storage)
+        ↓  internal Docker network
+model/server/      (vLLM — Gemma inference, GPU-only)
 ```
 
-## Script load order (every app page)
+## Repository layout
 
-```html
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script src="js/data.js"></script>
-```
+| Directory | Contents |
+| --- | --- |
+| `frontend/` | Next.js student application |
+| `backend/` | FastAPI API server + database migrations |
+| `model/server/` | vLLM inference server (Gemma, GPU-only) |
+| `model/training/` | QLoRA fine-tuning scripts and config |
+| `model/benchmarks/` | Benchmark prompts and latency measurement scripts |
+| `model/evaluation/` | Evaluation harness and model version results |
+| `annotated-data/` | Training, validation, and test datasets (git-ignored content) |
+| `docs/` | Architecture, API, authentication, deployment, and audit documentation |
+| `legacy/` | Previous research collaboration website (separate Supabase schema) |
+| `packages/shared-types/` | TypeScript contract types shared between frontend and backend |
+| `.github/workflows/` | CI/CD — frontend lint/test/build, backend ruff/pytest, model infrastructure checks |
 
-## Features
+## Quick start
 
-- **Chat**: Messages saved to `chat_messages`; realtime INSERT updates the UI per channel.
-- **Calendar**: Day comments in `day_comments` with realtime on the selected day.
-- **Phases**: Status in `phase_statuses` with realtime on overview and Gantt.
-- **Permissions**: Owner can toggle posting for collaborators via `chat_perms`.
-- **Security**: Content-Security-Policy on all pages; user text via `textContent` only; rate limits on sends/comments.
-
-## Deploying on Vercel
-
-### Option A — GitHub (recommended)
-
-1. Push your branch to GitHub (`TejasGov/tasks-Socra`).
-2. Go to [vercel.com](https://vercel.com) → **Add New Project** → import the repo.
-3. **Production branch:** `Reconfuring_Session_Chat` (or `main` after merge).
-4. **Framework Preset:** Other
-   **Build Command:** `npm run build`
-   **Output Directory:** `.` (project root)
-5. **Environment Variables** (Settings → Environment Variables):
-
-   | Name | Value |
-   |------|--------|
-   | `NEXT_PUBLIC_SUPABASE_URL` | `https://your-project-ref.supabase.co` |
-   | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Your browser-safe publishable key |
-
-6. **Deploy**. The build runs `scripts/generate-config.js` and creates `config.js` on the server (not committed to git).
-
-### Option B — Vercel CLI
+### Environment
 
 ```bash
-npm i -g vercel
-cd tasks-Socra
-vercel
-# follow prompts; add env vars in the dashboard or:
-vercel env add NEXT_PUBLIC_SUPABASE_URL
-vercel env add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-vercel --prod
+cp .env.example .env
+# Fill in Supabase credentials, DATABASE_URL, and model server API keys.
+# See docs/secrets-and-environments.md for what each variable does.
 ```
 
-### After deploy
+### Backend
 
-- Site URL will look like `https://tasks-socra.vercel.app`
-- Open `/login.html` to sign in
-- Ensure Supabase **SQL schema** (`supabase_schema.sql`) was run on the same project as your env vars
+```bash
+cd backend
+pip install -r requirements-dev.txt
+uvicorn app.main:app --reload
+# GET http://localhost:8000/health → { "status": "ok" }
+```
 
-## Customization
+### Frontend
 
-- Phases, meetings, users: edit `js/data.js`
-- Styles: `css/style.css`
-- Copy: edit HTML pages directly
+```bash
+cd frontend
+npm ci
+npm run dev
+# http://localhost:3000
+```
+
+### Model server (requires NVIDIA GPU + Hugging Face access)
+
+```bash
+# Accept Gemma terms on Hugging Face, then set HF_TOKEN and MODEL_PRIMARY_API_KEY in .env
+docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build model-primary
+```
+
+### Run tests
+
+```bash
+# Backend
+cd backend && pytest
+
+# Frontend
+cd frontend && npm run test
+```
+
+## Database migrations
+
+Apply in filename order against your Supabase project:
+
+```bash
+psql "$DATABASE_URL" -f backend/database/migrations/0001_init.sql
+psql "$DATABASE_URL" -f backend/database/migrations/202607190001_create_model_requests.sql
+psql "$DATABASE_URL" -f backend/database/migrations/202607190002_create_identity_and_classrooms.sql
+psql "$DATABASE_URL" -f backend/database/migrations/202608020001_create_phase1_domain_schema.sql
+```
+
+## Documentation
+
+| Document | Contents |
+| --- | --- |
+| `docs/architecture.md` | System overview and component map |
+| `docs/backend-architecture.md` | FastAPI layer descriptions |
+| `docs/api-routes.md` | All API routes with auth and status |
+| `docs/authentication-flow.md` | Supabase JWT flow |
+| `docs/authorization-model.md` | Role-permission matrix |
+| `docs/model-infrastructure.md` | vLLM topology, fallback, circuit breaker |
+| `docs/model-training.md` | QLoRA training process |
+| `docs/deployment.md` | Deployment checklist |
+| `docs/secrets-and-environments.md` | Secret management rules |
+| `docs/development-workflow.md` | Branch and PR conventions |
+| `docs/phase1-final-gap-audit.md` | Current Phase 1 gap list |
+
+## Legacy research site
+
+`legacy/` contains the static multi-page collaboration site (calendar, Gantt, chat) that predates the tutoring platform. It uses a separate Supabase schema and a separate Supabase project. See `legacy/README.md`.

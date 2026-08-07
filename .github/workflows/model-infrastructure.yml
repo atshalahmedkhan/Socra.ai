@@ -7,10 +7,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
-      - run: pip install -r services/api/requirements-dev.txt
-      - run: ruff check services/api/app services/api/tests scripts
-      - run: pytest -q services/api/tests
-      - run: python -m compileall services/api/app scripts
+      - run: pip install -r backend/requirements-dev.txt
+      - run: ruff check backend/app backend/tests model/benchmarks/scripts
+      - run: pytest -q backend/tests
+      - run: python -m compileall backend/app model/benchmarks/scripts
       - run: SOC_ENDPOINT_ENV_FILE=.env.example docker compose -f docker-compose.yml config --quiet
       - run: SOC_ENDPOINT_ENV_FILE=.env.example docker compose -f docker-compose.yml -f docker-compose.gpu.yml config --quiet
       - run: python -c "from pathlib import Path; required={'APP_ENV','API_V1_PREFIX','SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','SUPABASE_SECRET_KEY','DATABASE_URL','SUPABASE_JWT_ISSUER','SUPABASE_JWKS_URL','MODEL_PRIMARY_URL','MODEL_PRIMARY_API_KEY'}; names={line.split('=',1)[0] for line in Path('.env.example').read_text().splitlines() if '=' in line}; assert not required-names, required-names"

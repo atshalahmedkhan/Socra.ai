@@ -17,11 +17,11 @@ model endpoint, logs, and environment variables. See
 
 ## Build artifacts
 
-- **Frontend** (`apps/web`): Next.js production build (`npm run build`), deployed
+- **Frontend** (`frontend/`): Next.js production build (`npm run build`), deployed
   as a container or to a Node host.
-- **Backend** (`services/api`): container built from `services/api/Dockerfile`,
+- **Backend** (`backend/`): container built from `backend/Dockerfile`,
   served with `uvicorn`/`gunicorn`.
-- **Model server** (`services/model-server`): vLLM container on a GPU host,
+- **Model server** (`model/server/`): vLLM container on a GPU host,
   reachable only from the backend, authenticated via `MODEL_SERVER_API_KEY`.
 
 ## Secrets in CI/CD
@@ -36,15 +36,14 @@ model endpoint, logs, and environment variables. See
 docker compose up --build
 ```
 
-This is a development scaffold (`docker-compose.yml`). It runs the web and API
-services plus an optional local pgvector Postgres. The model server is GPU-bound
-and typically run separately.
+This is a development scaffold (`docker-compose.yml`). It runs the API
+service. The model server is GPU-bound and typically run separately.
 
 ## Rollout checklist (per environment)
 
 - [ ] Environment variables set and validated at startup.
-- [ ] Database migrations applied (`database/migrations`).
-- [ ] RLS policies applied (`database/policies`).
+- [ ] Database migrations applied (`backend/database/migrations/`).
+- [ ] RLS policies applied (`backend/database/policies/`).
 - [ ] Model server reachable from backend, and only from backend.
 - [ ] Frontend bundle verified to contain no backend secrets.
 - [ ] Logs shipped to per-environment sink; no tokens/keys logged.

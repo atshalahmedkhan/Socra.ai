@@ -10,9 +10,9 @@ through progressive questions and hints instead of giving final answers.
 ┌────────────┐      HTTPS       ┌────────────────┐     internal      ┌──────────────────┐
 │  Next.js   │ ───────────────▶ │    FastAPI     │ ────────────────▶ │  vLLM model      │
 │  frontend  │  (NEXT_PUBLIC_    │    backend     │  MODEL_SERVER_URL │  server (Gemma)  │
-│ apps/web   │   API_BASE_URL)   │ services/api   │  + API key        │ services/model-  │
-└─────┬──────┘                  └───────┬────────┘                   │     server       │
-      │                                 │                            └──────────────────┘
+│ frontend/  │   API_BASE_URL)   │  backend/      │  + API key        │ model/server/    │
+└─────┬──────┘                  └───────┬────────┘                   └──────────────────┘
+      │                                 │
       │ Supabase Auth (anon key)        │ Supabase (service-role key, server-side only)
       ▼                                 ▼
 ┌──────────────────────────────────────────────────────────────────┐
@@ -33,12 +33,15 @@ through progressive questions and hints instead of giving final answers.
 
 | Component | Path | Responsibility |
 | --- | --- | --- |
-| Web frontend | `apps/web` | Next.js UI, Supabase auth session, calls backend REST API |
-| API backend | `services/api` | FastAPI, auth verification, RAG, orchestration of model calls |
-| Model training | `services/model-training` | QLoRA fine-tuning of Gemma, evaluations |
-| Model server | `services/model-server` | vLLM inference serving the fine-tuned model |
-| Shared types | `packages/shared-types` | Types shared between frontend and backend contracts |
-| Database | `database` | Migrations, seed data, RLS policies |
+| Web frontend | `frontend/` | Next.js UI, Supabase auth session, calls backend REST API |
+| API backend | `backend/` | FastAPI, auth verification, RAG, orchestration of model calls |
+| Model training | `model/training/` | QLoRA fine-tuning of Gemma, evaluations |
+| Model server | `model/server/` | vLLM inference serving the fine-tuned model |
+| Model benchmarks | `model/benchmarks/` | Benchmark prompts and latency measurement scripts |
+| Model evaluation | `model/evaluation/` | Evaluation harness and results |
+| Shared types | `packages/shared-types/` | Types shared between frontend and backend contracts |
+| Database | `backend/database/` | Migrations, seed data, RLS policies |
+| Annotated data | `annotated-data/` | Training, validation, and test datasets |
 
 ## Data flow (tutoring request)
 
