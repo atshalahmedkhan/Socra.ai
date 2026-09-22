@@ -9,5 +9,7 @@ benchmark-results/
 models/
 adapters/
 __pycache__/
+*.pyc
 .pytest_cache/
 .venv/
+

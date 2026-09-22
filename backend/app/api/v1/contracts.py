@@ -85,10 +85,6 @@ async def materials_create(classroom_id: UUID):
 for path, methods in (
     ("/materials/{material_id}", ["GET", "DELETE"]),
     ("/materials/{material_id}/status", ["GET"]),
-    ("/tutoring-sessions", ["POST"]),
-    ("/tutoring-sessions/{session_id}", ["GET"]),
-    ("/tutoring-sessions/{session_id}/end", ["POST"]),
-    ("/tutoring-sessions/{session_id}/messages", ["GET", "POST"]),
     ("/messages/{message_id}/feedback", ["POST"]),
     ("/tutoring-sessions/{session_id}/feedback", ["GET"]),
     ("/research/participant-status", ["GET"]),
@@ -96,3 +92,4 @@ for path, methods in (
     ("/research/withdraw", ["POST"]),
 ):
     router.add_api_route(path, unavailable, methods=methods, dependencies=[Depends(get_current_user)])
+

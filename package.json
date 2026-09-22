@@ -1,11 +1,11 @@
 {
-  "name": "tasks-socra",
+  "name": "recall-mvp",
   "version": "1.0.0",
+  "private": true,
   "scripts": {
-    "build": "node legacy/scripts/generate-config.js",
-    "start": "serve ."
-  },
-  "devDependencies": {
-    "serve": "^14.2.0"
+    "dev": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix frontend",
+    "start": "npm run start --prefix frontend",
+    "typecheck": "npm run typecheck --prefix frontend"
   }
 }

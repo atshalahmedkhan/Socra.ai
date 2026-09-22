@@ -16,6 +16,7 @@ from app.core.exception_handlers import install_exception_handlers
 from app.core.logging import configure_logging
 from app.core.middleware import RequestContextMiddleware
 from app.repositories.model_request_repository import ModelRequestRepository
+from app.repositories.tutoring_session_repository import TutoringSessionRepository
 from app.repositories.user_repository import UserRepository
 from app.schemas.model import ModelGenerationRequest
 from app.services.model_circuit_breaker import CircuitBreaker
@@ -23,6 +24,7 @@ from app.services.model_client import ModelClient
 from app.services.model_errors import ModelError
 from app.services.model_gateway import ModelGateway
 from app.services.model_usage import safely_record
+from app.services.remediation_service import RemediationService
 
 CONTROLLED_ERROR = "Socra cannot generate the next question right now. Your message has been saved. Please try again."
 
@@ -45,7 +47,7 @@ async def lifespan(app: FastAPI):
     app.state.settings = settings
     app.state.db_pool = pool
     app.state.model_client = client
-    app.state.gateway = ModelGateway(
+    gateway = ModelGateway(
         settings,
         client,
         CircuitBreaker(
@@ -53,12 +55,20 @@ async def lifespan(app: FastAPI):
             settings.model_circuit_breaker_reset_seconds,
         ),
     )
+    app.state.gateway = gateway
     app.state.model_requests = ModelRequestRepository(pool)
     app.state.users = UserRepository(pool)
+    tutoring_repo = TutoringSessionRepository(pool)
+    app.state.tutoring_sessions = tutoring_repo
+    app.state.remediation_service = RemediationService(
+        repository=tutoring_repo,
+        gateway=gateway,
+    )
     yield
     await client.close()
     if pool:
         await pool.close()
+
 
 
 app = FastAPI(title="Socra API", version="0.1.0", lifespan=lifespan)
